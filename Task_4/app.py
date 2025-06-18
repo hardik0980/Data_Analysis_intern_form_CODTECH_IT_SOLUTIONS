@@ -52,7 +52,15 @@ def create_card(tweet_text, sentiment):
     """
     return card_html
 
-# Main app logic
+
+
+@st.cache_resource
+def initialize_scraper():
+    scraper = Nitter(log_level=1)
+    scraper.working_instances = ["https://nitter.net"]  # 👈 directly set working instance
+    return scraper
+
+
 def main():
     st.title("Twitter Sentiment Analysis")
 
@@ -73,17 +81,18 @@ def main():
     elif option == "Get tweets from user":
         username = st.text_input("Enter Twitter username")
         if st.button("Fetch Tweets"):
-            tweets_data = scraper.get_tweets(username, mode='user', number=5)
-            if 'tweets' in tweets_data:  # Check if the 'tweets' key exists
-                for tweet in tweets_data['tweets']:
-                    tweet_text = tweet['text']  # Access the text of the tweet
-                    sentiment = predict_sentiment(tweet_text, model, vectorizer, stop_words)  # Predict sentiment of the tweet text
-                    
-                    # Create and display the colored card for the tweet
-                    card_html = create_card(tweet_text, sentiment)
-                    st.markdown(card_html, unsafe_allow_html=True)
-            else:
-                st.write("No tweets found or an error occurred.")
+            try:
+                tweets_data = scraper.get_tweets(username, mode='user', number=5)
+                if 'tweets' in tweets_data:
+                    for tweet in tweets_data['tweets']:
+                        tweet_text = tweet['text']
+                        sentiment = predict_sentiment(tweet_text, model, vectorizer, stop_words)
+                        card_html = create_card(tweet_text, sentiment)
+                        st.markdown(card_html, unsafe_allow_html=True)
+                else:
+                    st.warning("No tweets found for this user.")
+            except Exception as e:
+                st.error(f"Could not fetch tweets. Reason: {e}")
 
 if __name__ == "__main__":
     main()
