@@ -1,7 +1,6 @@
 streamlit
 scikit-learn
 nltk
-snscrape
 joblib
 streamlit
 scikit-learn
