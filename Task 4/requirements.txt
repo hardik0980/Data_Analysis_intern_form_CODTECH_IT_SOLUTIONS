@@ -1,5 +1,9 @@
 streamlit
 scikit-learn
 nltk
-ntscraper
+snscrape
 joblib
+streamlit
+scikit-learn
+nltk
+ntscraper
